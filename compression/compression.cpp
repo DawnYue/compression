@@ -3,7 +3,6 @@
 #include<math.h>
 #include <vector>
 #include "cv.h"
-
 using namespace cv;
 using namespace std;
 
