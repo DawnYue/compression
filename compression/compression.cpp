@@ -6,8 +6,8 @@
 using namespace cv;
 using namespace std;
 
-//练习1
-//鼠标响应函数
+//练习2
+//dft
 std::vector<Point>  mousePoints;
 Point points;
 
