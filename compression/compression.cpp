@@ -6,8 +6,8 @@
 using namespace cv;
 using namespace std;
 
-//练习1
-//鼠标响应函数
+//练习4
+//叠加
 std::vector<Point>  mousePoints;
 Point points;
 
@@ -82,82 +82,11 @@ int mouseROI()
 	return 0;
 }
 
-int dftDemo() {
 
-	cv::Mat srcMat = imread("E:\\9\\hogTemplate.jpg", 0);
 
-	if (srcMat.empty()) {
-		std::cout << "failed to read image!:" << std::endl;
-		return -1;
-	}
-
-	Mat padMat;
-	//当图像的尺寸是2，3，5的整数倍时，离散傅里叶变换的计算速度最快。	
-	//获得输入图像的最佳变换尺寸
-	int m = getOptimalDFTSize(srcMat.rows);
-	int n = getOptimalDFTSize(srcMat.cols);
-	//对新尺寸的图片进行边缘边缘填充
-	copyMakeBorder(srcMat, padMat, 0, m - srcMat.rows, 0, n - srcMat.cols, BORDER_CONSTANT, Scalar::all(0));
-
-	//定义一个数组,存储频域转换成float类型的对象，再存储一个和它一样大小空间的对象来存储复数部分
-	Mat planes[] = { Mat_<float>(padMat), Mat::zeros(padMat.size(), CV_32F) };
-	Mat complexMat;
-
-	//将2个单通道的图像合成一幅多通道图像
-	merge(planes, 2, complexMat);
-	//进行傅里叶变换,结果保存在原Mat里,傅里叶变换结果为复数.通道1存的是实部,通道二存的是虚部
-	dft(complexMat, complexMat);
-	//将双通道的图分离成量个单通道的图 
-	//实部：planes[0] = Re(DFT(I),
-	//虚部：planes[1]=  Im(DFT(I))) 
-	split(complexMat, planes);
-	//求相位，保存在planes[0]
-	magnitude(planes[0], planes[1], planes[0]);
-
-	//以下步骤均为了显示方便
-	Mat magMat = planes[0];
-	// log(1 + sqrt(Re(DFT(I))^2 + Im(DFT(I))^2))
-	magMat += Scalar::all(1);
-	log(magMat, magMat);
-
-	//确保对称
-	magMat = magMat(Rect(0, 0, magMat.cols & -2, magMat.rows & -2));
-	int cx = magMat.cols / 2;
-	int cy = magMat.rows / 2;
-	//将图像移相
-	/*
-	0 | 1         3 | 2
-	-------  ===> -------
-	2 | 3         1 | 0
-	*/
-	Mat q0(magMat, Rect(0, 0, cx, cy));
-	Mat q1(magMat, Rect(cx, 0, cx, cy));
-	Mat q2(magMat, Rect(0, cy, cx, cy));
-	Mat q3(magMat, Rect(cx, cy, cx, cy));
-	Mat tmp;
-	q0.copyTo(tmp);
-	q3.copyTo(q0);
-	tmp.copyTo(q3);
-	q1.copyTo(tmp);
-	q2.copyTo(q1);
-	tmp.copyTo(q2);
-
-	//为了imshow可以显示，归一化到0和1之间
-	normalize(magMat, magMat, 0, 1, NORM_MINMAX);
-	magMat = magMat * 255;
-
-	imshow("Input Image", srcMat);    // Show the result
-	imshow("spectrum magnitude", magMat);
-	waitKey(0);
-
-	return 0;
-
-}
-
-int ifftDemo()
+int ifftDemo(cv::Mat src,int flag, cv::Mat &dspMat)
 {
 	cv::Mat dst;
-	cv::Mat src = imread("E:\\9\\hogTemplate.jpg", 0);
 
 	int m = getOptimalDFTSize(src.rows); //2,3,5的倍数有更高效率的傅里叶变换
 	int n = getOptimalDFTSize(src.cols);
@@ -226,8 +155,10 @@ int ifftDemo()
 	cv::Mat mask;
 	Mat proceMag;
 
-	selectPolygon(mag, mask);
-
+    selectPolygon(mag, mask);
+	if (flag) {
+		mask = ~mask;
+	}
 	mag = mag.mul(mask);
 
 	proceMag = mag * 255;
@@ -264,7 +195,7 @@ int ifftDemo()
 	dst = ifft(rect);
 	dst = dst * 255;
 
-	cv::Mat dspMat;
+//	cv::Mat dspMat;
 	dst.convertTo(dspMat, CV_8UC1);
 	imshow("dst", dspMat);
 	imshow("src", src);
@@ -275,7 +206,21 @@ int ifftDemo()
 }
 int main()
 {	
-	ifftDemo();
+	cv::Mat src2 = imread("E:\\10\\tlp.jpg", 0);
+	cv::Mat src1 = imread("E:\\10\\xll.jpg", 0);
+	cv::Mat dst1;
+	cv::Mat dst2;
+	cv::Mat dst;
+
+	ifftDemo(src1,1,dst1);
+	imshow("mydst", dst1);
+
+	ifftDemo(src2,0, dst2);
+	imshow("mydst2", dst2);
+
+	add(dst2, dst1, dst);
+	imshow("mydst", dst);
+
 	waitKey();
 	return 0;
 }
