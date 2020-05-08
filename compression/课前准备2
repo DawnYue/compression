@@ -1,0 +1,25 @@
+#include<opencv2/opencv.hpp>
+#include<iostream>
+#include<math.h>
+#include <vector>
+#include "cv.h"
+using namespace cv;
+using namespace std;
+
+//练习1
+int main()
+{	
+	namedWindow("MouseCallback");
+	imshow("MouseCallback", selectMat);
+	setMouseCallback("MouseCallback", on_mouse, &selectMat);
+	waitKey(0);
+	destroyAllWindows();
+	//roi
+	counters.push_back(mousePoints);
+	if (counters[0].size() < 3) {
+		std::cout << "failed to red image !:" << std::endl;
+		return -1;
+	}
+  waitKey();
+	return 0;
+}
