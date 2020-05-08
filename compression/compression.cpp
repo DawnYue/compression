@@ -68,19 +68,6 @@ int selectPolygon(cv::Mat srcMat, cv::Mat &dstMat)
 	return 0;
 }
 
-int mouseROI()
-{
-	cv::Mat srcMat = imread("E:\\9\\hogTemplate.jpg");
-	cv::Mat dstMat;
-
-	selectPolygon(srcMat, dstMat);
-
-	imshow("srcMat", srcMat);
-	imshow("select Area", dstMat);
-	waitKey(0);
-
-	return 0;
-}
 
 
 
